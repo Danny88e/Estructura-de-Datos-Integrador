@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Archivos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="file-management-container">
+        <h2>Gestión de Archivos</h2>
+        <div class="controls">
+            <input type="text" id="fileName" placeholder="Nombre del archivo">
+            <input type="text" id="fileDescription" placeholder="Descripción del archivo">
+            <input type="file" id="fileInput">
+            <button id="addFileButton">Agregar archivo</button>
+            <button id="readFilesButton">Leer archivos</button>
+            <button id="deleteFileButton">Eliminar archivo</button>
+            <button id="undoButton">Deshacer</button>
+            <button id="processQueueButton">Procesar cola de subida</button>
+        </div>
+        <h3>Archivos</h3>
+        <ul id="fileList"></ul>
+    </div>
+
+    <script>
+        // Clases de estructuras de datos como en la respuesta anterior
+        class Node {
+            constructor(data) {
+                this.data = data;
+                this.next = null;
+                this.prev = null;
+            }
+        }
+
+        class DoublyLinkedList {
+            constructor() {
+                this.head = null;
+                this.tail = null;
+            }
+
+            append(data) {
+                const newNode = new Node(data);
+                if (!this.head) {
+                    this.head = this.tail = newNode;
+                } else {
+                    this.tail.next = newNode;
+                    newNode.prev = this.tail;
+                    this.tail = newNode;
+                }
+            }
+
+            delete(name) {
+                let current = this.head;
+                while (current) {
+                    if (current.data.name === name) {
+                        if (current.prev) current.prev.next = current.next;
+                        if (current.next) current.next.prev = current.prev;
+                        if (current === this.head) this.head = current.next;
+                        if (current === this.tail) this.tail = current.prev;
+                        return true;
+                    }
+                    current = current.next;
+                }
+                return false;
+            }
+
+            readAll() {
+                const files = [];
+                let current = this.head;
+                while (current) {
+                    files.push(current.data);
+                    current = current.next;
+                }
+                return files;
+            }
+        }
+
+        class Stack {
+            constructor() {
+                this.items = [];
+            }
+
+            push(item) {
+                this.items.push(item);
+            }
+
+            pop() {
+                return this.items.pop();
+            }
+
+            peek() {
+                return this.items[this.items.length - 1];
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+
+        class Queue {
+            constructor() {
+                this.items = [];
+            }
+
+            enqueue(item) {
+                this.items.push(item);
+            }
+
+            dequeue() {
+                return this.items.shift();
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+
+        // Inicialización de estructuras
+        const filesList = new DoublyLinkedList();
+        const undoStack = new Stack();
+        const uploadQueue = new Queue();
+
+        // Funciones de gestión de archivos
+        function addFile(name, description, file) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                const fileType = file.type;
+                const fileSize = file.size;
+                const fileData = {
+                    name: name,
+                    description: description,
+                    type: fileType,
+                    size: fileSize,
+                    content: e.target.result
+                };
+                filesList.append(fileData);
+                undoStack.push({ action: "add", file: fileData });
+                updateFileList();
+            };
+            fileReader.readAsDataURL(file);
+        }
+
+        function deleteFile(name) {
+            const allFiles = filesList.readAll();
+            const fileToDelete = allFiles.find(file => file.name === name);
+            if (fileToDelete && filesList.delete(name)) {
+                undoStack.push({ action: "delete", file: fileToDelete });
+                updateFileList();
+            }
+        }
+
+        function readFiles() {
+            const files = filesList.readAll();
+            alert("Archivos: " + JSON.stringify(files));
+        }
+
+        function uploadFile(file) {
+            uploadQueue.enqueue(file);
+        }
+
+        function processUploadQueue() {
+            while (!uploadQueue.isEmpty()) {
+                const file = uploadQueue.dequeue();
+                console.log(`Subiendo archivo: ${file.name}`);
+            }
+        }
+
+        function undoLastOperation() {
+            if (undoStack.isEmpty()) {
+                console.log("Nada que deshacer.");
+                return;
+            }
+
+            const lastOperation = undoStack.pop();
+            if (lastOperation.action === "add") {
+                filesList.delete(lastOperation.file.name);
+            } else if (lastOperation.action === "delete") {
+                filesList.append(lastOperation.file);
+            }
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileListElement = document.getElementById("fileList");
+            const files = filesList.readAll();
+            fileListElement.innerHTML = files.map(file => `<li>${file.name} - ${file.description}</li>`).join('');
+        }
+
+        // Conectar botones con funciones
+        document.getElementById("addFileButton").addEventListener("click", () => {
+            const name = document.getElementById("fileName").value;
+            const description = document.getElementById("fileDescription").value;
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            if (file && name && description) {
+                addFile(name, description, file);
+            } else {
+                alert("Por favor, complete todos los campos.");
+            }
+        });
+
+        document.getElementById("readFilesButton").addEventListener("click", readFiles);
+        document.getElementById("deleteFileButton").addEventListener("click", () => {
+            const name = document.getElementById("fileName").value;
+            deleteFile(name);
+        });
+
+        document.getElementById("undoButton").addEventListener("click", undoLastOperation);
+        document.getElementById("processQueueButton").addEventListener("click", processUploadQueue);
+    </script>
+</body>
+</html>

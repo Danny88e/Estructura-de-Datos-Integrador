@@ -1,0 +1,52 @@
+/* General */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FFFFFF; /* Fondo blanco */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Cuadro de login */
+.login-container {
+    background: #FFBA49; /* Amarillo */
+    padding: 40px; /* Más espacio */
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    width: 400px; /* Más ancho */
+    text-align: center;
+}
+
+/* Input y Botón */
+input {
+    width: 95%; /* Más ancho */
+    padding: 12px; /* Más espacio interno */
+    margin: 15px 0;
+    border: 1px solid #20A39E; /* Verde azulado */
+    border-radius: 8px;
+    font-size: 16px; /* Texto más grande */
+}
+
+button {
+    background-color: #20A39E; /* Verde azulado */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #EF5B5B; /* Rojo coral */
+}
+
+/* Mensaje de error */
+.error {
+    color: #EF5B5B; /* Rojo coral */
+    font-size: 14px;
+    margin-top: 10px;
+}

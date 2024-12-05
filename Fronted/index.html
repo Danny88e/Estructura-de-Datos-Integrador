@@ -1,40 +1,46 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario con JavaScript</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Login Básico</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Formulario de Contacto</h1>
-    </header>
-
-    <section>
-        <form id="contactForm">
-            <label for="name">Nombre:</label>
-            <input type="text" id="name" name="name" required>
-
-            <label for="email">Correo electrónico:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="message">Mensaje:</label>
-            <textarea id="message" name="message" required></textarea>
-
-            <button type="submit">Enviar</button>
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form onsubmit="return validarLogin()">
+            <input type="text" id="username" placeholder="Usuario" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button type="submit">Ingresar</button>
+            <p id="error-message" class="error"></p>
         </form>
+    </div>
 
-        <div id="formResponse" style="display:none;">
-            <h2>Gracias por tu mensaje</h2>
-            <p id="responseMessage"></p>
-        </div>
-    </section>
+    <script>
+        function validarLogin() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById("error-message");
 
-    <footer>
-        <p>&copy; 2024. Todos los derechos reservados.</p>
-    </footer>
+            // Usuario y contraseña predeterminados
+            const usuarioCorrecto = "admin";
+            const contrasenaCorrecta = "1234";
 
-    <script src="app.js"></script>
+            if (username !== usuarioCorrecto) {
+                errorMessage.textContent = "Usuario incorrecto.";
+                return false;
+            }
+
+            if (password !== contrasenaCorrecta) {
+                errorMessage.textContent = "Contraseña incorrecta.";
+                return false;
+            }
+
+            // Redirigir a la página de gestión de archivos
+            window.location.href = "manageFiles.html";
+            return false; // Evita que el formulario se envíe
+        }
+    </script>
 </body>
 </html>
